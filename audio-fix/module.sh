@@ -92,24 +92,29 @@ ucm_hifi_is_upstream() {
   [[ $lowest == 1.2.16 ]]
 }
 
+audio_module_strings() {
+  case "$1" in
+    *.zst) zstdcat -- "$1" 2>/dev/null ;;
+    *.xz)  xzcat -- "$1" 2>/dev/null ;;
+    *.gz)  gzip -cd -- "$1" 2>/dev/null ;;
+    *)     cat -- "$1" 2>/dev/null ;;
+  esac | strings
+}
+
 # audio_kernel_has_upstream_ghost_quirk [kernel-release]
 #
 # Do not rely on a kernel version: distributions may backport the fix. The
-# accepted SoundWire DMI entry embeds the exact board name in soundwire_bus, so
-# inspecting that module is both backport-safe and independent of the running
-# kernel. Commit: 90af3209742db61a7f9d7d054a16165818cfc6d8.
+# accepted SoundWire DMI entry embeds the exact board name in soundwire_intel,
+# so inspecting that module is both backport-safe and independent of the
+# running kernel. Commit: 90af3209742db61a7f9d7d054a16165818cfc6d8.
 audio_kernel_has_upstream_ghost_quirk() {
-  local kernel="${1:-$(uname -r)}" module marker=""
-  module="$(modinfo -k "$kernel" -n soundwire_bus 2>/dev/null || true)"
-  [[ -f $module ]] || return 1
-
-  case "$module" in
-    *.zst) marker="$(zstdcat -- "$module" 2>/dev/null | strings | grep -F 'B9406CAA' || true)" ;;
-    *.xz)  marker="$(xzcat -- "$module" 2>/dev/null | strings | grep -F 'B9406CAA' || true)" ;;
-    *.gz)  marker="$(gzip -cd -- "$module" 2>/dev/null | strings | grep -F 'B9406CAA' || true)" ;;
-    *)     marker="$(strings -- "$module" 2>/dev/null | grep -F 'B9406CAA' || true)" ;;
-  esac
-  [[ -n $marker ]]
+  local kernel="${1:-$(uname -r)}" name module
+  for name in soundwire_intel soundwire_bus; do
+    module="$(modinfo -k "$kernel" -n "$name" 2>/dev/null || true)"
+    [[ -f $module ]] || continue
+    audio_module_strings "$module" | grep -qF 'B9406CAA' && return 0
+  done
+  return 1
 }
 
 audio_dkms_installed_for_kernel() {

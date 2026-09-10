@@ -24,7 +24,7 @@ Status checked against `torvalds/linux` and the released Linux 7.2.1 sources on
 The file here is the exact upstream commit patch, retained for distro/stable
 backports. It landed after Linux 7.2, and is absent from 7.2.1, so released
 kernels still need `audio-fix`'s DKMS overlay unless their distributor
-backported the commit. `audio-fix` 3.1 checks the installed `soundwire_bus`
+backported the commit. `audio-fix` 3.1 checks the installed `soundwire_intel`
 module for the B9406CAA marker per kernel: it builds DKMS only for kernels that
 lack the upstream quirk and removes the overlay once all installed kernels have
 it.
