@@ -202,7 +202,7 @@ all_pass=1
 
 if (( all_pass == 1 )); then
   printf '%sResult: install-all is appropriate for this hardware.%s\n' "$c_ok" "$c_off"
-  printf '\n  git clone https://github.com/burakgon/asus-expertbook-linux.git\n'
+  printf '\n  git clone https://github.com/nhalm/asus-expertbook-linux.git\n'
   printf '  cd asus-expertbook-linux\n'
   printf '  ./patch.sh install-all\n'
   printf '  sudo reboot\n\n'

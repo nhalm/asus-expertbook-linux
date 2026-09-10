@@ -28,7 +28,7 @@ It's for you if **all** of the following are true. The single command below
 checks them in one go:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/burakgon/asus-expertbook-linux/main/scripts/check-hardware.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nhalm/asus-expertbook-linux/main/scripts/check-hardware.sh | bash
 ```
 
 | Check | Expected | Why it matters |
@@ -70,7 +70,7 @@ different distro, the modules themselves still apply — only the
 ## Quick install
 
 ```sh
-git clone https://github.com/burakgon/asus-expertbook-linux.git
+git clone https://github.com/nhalm/asus-expertbook-linux.git
 cd asus-expertbook-linux
 ./patch.sh install-all
 sudo reboot
