@@ -50,7 +50,7 @@
 
 MODULE_NAME="audio-fix"
 MODULE_DESC="B9406CAA audio: adaptive ghost-RT722 fix + HiFi UCM + cs35l56 firmware"
-MODULE_VERSION="3.1.0"
+MODULE_VERSION="3.1.1"
 
 AUDIO_DKMS_NAME="asus-expertbook-sof-sdw"
 AUDIO_DKMS_VERSION="3.0.0"
@@ -169,10 +169,34 @@ audio_remove_legacy_dkms() {
   done
 }
 
+# Echoes gcc or clang. Defaults to gcc until the headers are installed.
+audio_kernel_toolchain() {
+  local kernel="${1:-$(uname -r)}" config
+  for config in "/usr/lib/modules/$kernel/build/include/config/auto.conf" \
+                "/usr/lib/modules/$kernel/build/.config"; do
+    [[ -r $config ]] || continue
+    if grep -qs '^CONFIG_CC_IS_CLANG=y' "$config"; then
+      printf 'clang\n'
+    else
+      printf 'gcc\n'
+    fi
+    return
+  done
+  printf 'gcc\n'
+}
+
 audio_require_build_tools() {
-  local missing=() package
-  for package in dkms make clang; do
-    command -v "$package" >/dev/null 2>&1 || missing+=("$package")
+  local -a kernels=("$@") wanted=(dkms make) missing=()
+  local package kernel
+
+  (( ${#kernels[@]} > 0 )) || kernels=("$(uname -r)")
+  for kernel in "${kernels[@]}"; do
+    wanted+=("$(audio_kernel_toolchain "$kernel")")
+  done
+
+  for package in "${wanted[@]}"; do
+    command -v "$package" >/dev/null 2>&1 && continue
+    [[ " ${missing[*]} " == *" $package "* ]] || missing+=("$package")
   done
 
   if (( ${#missing[@]} > 0 )); then
@@ -245,7 +269,7 @@ audio_install_dkms() {
   (( ${#build_kernels[@]} > 0 )) || \
     die "[audio-fix] kernels need the ghost-RT722 overlay, but no matching headers were found"
 
-  audio_require_build_tools
+  audio_require_build_tools "${build_kernels[@]}"
   install -d -m 0755 "$AUDIO_DKMS_TARGET"
   cp -a -- "$AUDIO_DKMS_SOURCE/." "$AUDIO_DKMS_TARGET/"
   dkms add -m "$AUDIO_DKMS_NAME" -v "$AUDIO_DKMS_VERSION"

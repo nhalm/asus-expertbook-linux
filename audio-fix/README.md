@@ -132,6 +132,26 @@ The exact patch is retained in
 for stable/distro backports. It landed after Linux 7.2 and is absent from 7.2.1;
 the installer detects the actual module marker instead of assuming a version.
 
+### DKMS build fails with `clang: error: unknown argument`
+
+The overlay must be compiled with the same toolchain as the target kernel. Arch's
+`linux` is GCC-built; CachyOS kernels are Clang/ThinLTO. Forcing the wrong one
+fails immediately, because the kernel exports compiler-specific CFLAGS:
+
+```
+clang: error: unknown argument: '-mindirect-branch=thunk-extern'
+clang: error: unsupported option '-mrecord-mcount'
+```
+
+`dkms.conf` picks the toolchain per kernel from that kernel's own
+`CONFIG_CC_IS_CLANG`, adding `LLVM=1` only for a Clang-built kernel. If a stale
+build is cached, reinstall to re-register the source:
+
+```sh
+./patch.sh install audio-fix
+cat /var/lib/dkms/asus-expertbook-sof-sdw/3.0.0/build/make.log   # on failure
+```
+
 ## Uninstall
 
 ```sh

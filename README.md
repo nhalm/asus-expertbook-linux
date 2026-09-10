@@ -109,7 +109,7 @@ typing single letters. Numbered table, color-coded state, cached.
 
   #   Module                    Version  Installed State          Description
   ------------------------------------------------------------------------------------
-  1   audio-fix                 3.1.0    3.1.0     up to date     Adaptive ghost-RT722 fix + HiFi audio
+  1   audio-fix                 3.1.1    3.1.1     up to date     Adaptive ghost-RT722 fix + HiFi audio
   2   camera-firmware           3009     3009      up to date     Verified camera UEFI capsule
   3   display-fix               1.3.0    1.3.0     up to date     Linux 7.2 display defaults + DPCD brightness
   4   intel-perf-fix            1.1.0    1.1.0     up to date     thermald + intel-lpmd
